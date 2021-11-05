@@ -41,6 +41,8 @@ public class ParserAST {
 
     public static List<String> methodInvocations = new ArrayList<>();
 
+    public static int allRelationsCounter = 0;
+
     public static void main(String[] args) throws IOException {
 
         // read java files
@@ -456,4 +458,60 @@ public class ParserAST {
     public static void showView(String filename) throws IOException {
         Desktop.getDesktop().open(new File(filename));
     }
+
+    public static int getNumberOfMethodInvocation(TypeDeclaration A) {
+        return A.getMethods().length;
+    }
+
+    public static void countAllRelations(CompilationUnit parse) {
+        TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
+        parse.accept(visitor);
+        // pour chaque classe,si ce n'est pas uneinterface,
+        for (TypeDeclaration typeDeclaration : visitor.getTypes()) {
+            if (typeDeclaration.isInterface()) continue;
+            for (MethodDeclaration method : typeDeclaration.getMethods()) {
+                MethodInvocationVisitor visitor2 = new MethodInvocationVisitor();
+                method.accept(visitor2);
+                for (MethodInvocation methodInvocation : visitor2.getMethods()) {
+                    IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+                    if (methodBinding != null) {
+                        ITypeBinding classTypeBinding = methodBinding.getDeclaringClass();
+                        if (classTypeBinding != null && !classTypeBinding.getName().equals(typeDeclaration.getName().toString())) {
+                            allRelationsCounter += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static int numberOfRelationBetweenAAndB(TypeDeclaration A, TypeDeclaration B) {
+        int numberOfRelations = 0;
+
+        if (A.isInterface() || B.isInterface()) {
+            return 0;
+        }
+
+        // pour chaque méthodes de A
+        for (MethodDeclaration Amethod : A.getMethods()) {
+            MethodInvocationVisitor visitor = new MethodInvocationVisitor();
+            Amethod.accept(visitor);
+            // on regarde chaque invocation si elle invoque une méthode de B
+            for (MethodInvocation methodInvocation : visitor.getMethods()) {
+                IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+                if (methodBinding != null) {
+                    ITypeBinding classTypeBinding = methodBinding.getDeclaringClass();
+                    if (classTypeBinding != null && classTypeBinding.getName().equals(B.getName().toString()))
+                        numberOfRelations += 1;
+                }
+            }
+        }
+
+
+        return numberOfRelations;
+    }
+
+//    public static float calculCouplage(TypeDeclaration A, TypeDeclaration B){
+//
+//    }
 }
