@@ -3,6 +3,7 @@ package com.exemple.tp2;
 import java.awt.*;
 import java.awt.Dimension;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ import org.eclipse.jdt.core.dom.*;
 import javax.swing.*;
 
 public class ParserAST {
-    public static final String projectPath = "/Users/benjaminadolphe/Desktop/fac/M2/S1 - local/HAI913I-Evolution-et-restructuration-des-logiciels/TP2/TP2_partie2";
+    public static final String projectPath = "/Users/benjaminadolphe/Downloads/SootTutorial";
     public static final String projectSourcePath = projectPath + "/src";
     public static final String jrePath = "/Users/benjaminadolphe/Library/Java/JavaVirtualMachines/openjdk-16.0.1/Contents/Home/bin";
 
@@ -58,7 +59,6 @@ public class ParserAST {
             String content = FileUtils.readFileToString(fileEntry);
             allContent.append(content);
         }
-
         CompilationUnit parse = parse(allContent.toString().toCharArray());
 
         // print methods info
@@ -80,13 +80,13 @@ public class ParserAST {
         getTotalNumberOfLines(parse);
         addTypeDeclarationToList(parse);
 
-        getClassesWithMostMethods();
-        getClassesWithMostFields();
-        moreThanXMethods(2);
-        showExo1();
+//        getClassesWithMostMethods();
+//        getClassesWithMostFields();
+//        moreThanXMethods(2);
+//        showExo1();
 
         System.setProperty("java.awt.headless", "false");
-        createDiagram();
+        // createDiagram();
 
         countAllRelations();
         createListGraphePondere();
@@ -519,6 +519,11 @@ public class ParserAST {
         return numberOfRelationBetweenTwoClasses(A, B) + "/" + allRelationsCounter;
     }
 
+    public static float calculCouplageInt(String couplage) {
+        String[] elements = couplage.split("/");
+        return Integer.parseInt(elements[0]) / Integer.parseInt(elements[1]);
+    }
+
     public static void addTypeDeclarationToList(CompilationUnit parse) {
         TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
         parse.accept(visitor);
@@ -532,7 +537,10 @@ public class ParserAST {
                 if (typeDeclaration1.getName().equals(typeDeclaration.getName())) {
                     continue;
                 }
-                graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"->\"" + typeDeclaration1.getName() + "\"[label=\"" + calculCouplage(typeDeclaration, typeDeclaration1) + "\"];\n");
+                String couplageString = calculCouplage(typeDeclaration, typeDeclaration1);
+                float couplageFloat = calculCouplageInt(couplageString);
+                DecimalFormat df = new DecimalFormat("#.####");
+                graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"->\"" + typeDeclaration1.getName() + "\"[label=\"" + df.format(couplageFloat) + " (" + couplageString + ")" + "\"];\n");
             }
         }
     }
