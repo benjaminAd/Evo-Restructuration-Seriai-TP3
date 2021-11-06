@@ -56,7 +56,6 @@ public class ParserAST {
         //
         for (File fileEntry : javaFiles) {
             String content = FileUtils.readFileToString(fileEntry);
-            // System.out.println(content);
             allContent.append(content);
         }
 
@@ -101,7 +100,6 @@ public class ParserAST {
             if (fileEntry.isDirectory()) {
                 javaFiles.addAll(listJavaFilesForFolder(fileEntry));
             } else if (fileEntry.getName().contains(".java")) {
-                // System.out.println(fileEntry.getName());
                 javaFiles.add(fileEntry);
             }
         }
@@ -470,24 +468,16 @@ public class ParserAST {
         Desktop.getDesktop().open(new File(filename));
     }
 
-    public static int getNumberOfMethodInvocation(TypeDeclaration A) {
-        return A.getMethods().length;
-    }
-
     public static void countAllRelations() {
         for (TypeDeclaration typeDeclaration : typeDeclarationList) {
-            System.out.println(typeDeclaration.getName());
             if (typeDeclaration.isInterface()) continue;
             for (MethodDeclaration method : typeDeclaration.getMethods()) {
-                System.out.println("MethodDeclaration : "+method.getName());
-
                 MethodInvocationVisitor visitor2 = new MethodInvocationVisitor();
                 method.accept(visitor2);
                 for (MethodInvocation methodInvocation : visitor2.getMethods()) {
                     IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
                     if (methodBinding != null) {
                         ITypeBinding classTypeBinding = methodBinding.getDeclaringClass();
-                        if(method.getName().toString().equals("getTotalNumberOfLines")) System.out.println("COOOL");
                         if (classTypeBinding != null && !classTypeBinding.getName().equals(typeDeclaration.getName().toString()) && typeDeclarationNames.contains(classTypeBinding.getName())) {
                             allRelationsCounter += 1;
                         }
@@ -542,7 +532,6 @@ public class ParserAST {
                 if (typeDeclaration1.getName().equals(typeDeclaration.getName())) {
                     continue;
                 }
-                System.out.println(calculCouplage(typeDeclaration, typeDeclaration1));
                 graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"->\"" + typeDeclaration1.getName() + "\"[label=\"" + calculCouplage(typeDeclaration, typeDeclaration1) + "\"];\n");
             }
         }
