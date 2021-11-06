@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.dom.*;
 import javax.swing.*;
 
 public class ParserAST {
-    public static final String projectPath = "/Users/benjaminadolphe/Downloads/IntelligenceArtificielleTP2-main";
+    public static final String projectPath = "/Users/benjaminadolphe/Desktop/fac/M2/S1 - local/HAI913I-Evolution-et-restructuration-des-logiciels/TP2/TP2_partie2";
     public static final String projectSourcePath = projectPath + "/src";
     public static final String jrePath = "/Users/benjaminadolphe/Library/Java/JavaVirtualMachines/openjdk-16.0.1/Contents/Home/bin";
 
@@ -41,6 +41,10 @@ public class ParserAST {
 
     public static List<String> methodInvocations = new ArrayList<>();
 
+    public static List<TypeDeclaration> typeDeclarationList = new ArrayList<>();
+    public static List<String> typeDeclarationNames = new ArrayList<>();
+    public static List<String> graphCouplageList = new ArrayList<>();
+
     public static int allRelationsCounter = 0;
 
     public static void main(String[] args) throws IOException {
@@ -48,32 +52,35 @@ public class ParserAST {
         // read java files
         final File folder = new File(projectSourcePath);
         ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
-
+        StringBuilder allContent = new StringBuilder();
         //
         for (File fileEntry : javaFiles) {
             String content = FileUtils.readFileToString(fileEntry);
             // System.out.println(content);
-
-            CompilationUnit parse = parse(content.toCharArray());
-
-            // print methods info
-            //printMethodInfo(parse);
-
-            // print variables info
-            // printVariableInfo(parse);
-
-            //print method invocations
-            printMethodInvocationInfo(parse);
-            countNumberClass(parse);
-            countNumberPackages(parse);
-            getNumberOfLinesPerMethod(parse);
-            getAverageNumberOfFieldsPerClass(parse);
-            putClassesMethodsInHashMap(parse);
-            putClassesFieldsInHashMap(parse);
-            getMethodsWithLines(parse);
-            getMaxParameters(parse);
-            getTotalNumberOfLines(parse);
+            allContent.append(content);
         }
+
+        CompilationUnit parse = parse(allContent.toString().toCharArray());
+
+        // print methods info
+        //printMethodInfo(parse);
+
+        // print variables info
+        // printVariableInfo(parse);
+
+        //print method invocations
+        printMethodInvocationInfo(parse);
+        countNumberClass(parse);
+        countNumberPackages(parse);
+        getNumberOfLinesPerMethod(parse);
+        getAverageNumberOfFieldsPerClass(parse);
+        putClassesMethodsInHashMap(parse);
+        putClassesFieldsInHashMap(parse);
+        getMethodsWithLines(parse);
+        getMaxParameters(parse);
+        getTotalNumberOfLines(parse);
+        addTypeDeclarationToList(parse);
+
         getClassesWithMostMethods();
         getClassesWithMostFields();
         moreThanXMethods(2);
@@ -81,6 +88,10 @@ public class ParserAST {
 
         System.setProperty("java.awt.headless", "false");
         createDiagram();
+
+        countAllRelations();
+        createListGraphePondere();
+        createGraphePondere();
     }
 
     // read all java files from specific folder
@@ -463,20 +474,21 @@ public class ParserAST {
         return A.getMethods().length;
     }
 
-    public static void countAllRelations(CompilationUnit parse) {
-        TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
-        parse.accept(visitor);
-        // pour chaque classe,si ce n'est pas uneinterface,
-        for (TypeDeclaration typeDeclaration : visitor.getTypes()) {
+    public static void countAllRelations() {
+        for (TypeDeclaration typeDeclaration : typeDeclarationList) {
+            System.out.println(typeDeclaration.getName());
             if (typeDeclaration.isInterface()) continue;
             for (MethodDeclaration method : typeDeclaration.getMethods()) {
+                System.out.println("MethodDeclaration : "+method.getName());
+
                 MethodInvocationVisitor visitor2 = new MethodInvocationVisitor();
                 method.accept(visitor2);
                 for (MethodInvocation methodInvocation : visitor2.getMethods()) {
                     IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
                     if (methodBinding != null) {
                         ITypeBinding classTypeBinding = methodBinding.getDeclaringClass();
-                        if (classTypeBinding != null && !classTypeBinding.getName().equals(typeDeclaration.getName().toString())) {
+                        if(method.getName().toString().equals("getTotalNumberOfLines")) System.out.println("COOOL");
+                        if (classTypeBinding != null && !classTypeBinding.getName().equals(typeDeclaration.getName().toString()) && typeDeclarationNames.contains(classTypeBinding.getName())) {
                             allRelationsCounter += 1;
                         }
                     }
@@ -485,7 +497,7 @@ public class ParserAST {
         }
     }
 
-    public static int numberOfRelationBetweenAAndB(TypeDeclaration A, TypeDeclaration B) {
+    public static int numberOfRelationBetweenTwoClasses(TypeDeclaration A, TypeDeclaration B) {
         int numberOfRelations = 0;
 
         if (A.isInterface() || B.isInterface()) {
@@ -501,8 +513,9 @@ public class ParserAST {
                 IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
                 if (methodBinding != null) {
                     ITypeBinding classTypeBinding = methodBinding.getDeclaringClass();
-                    if (classTypeBinding != null && classTypeBinding.getName().equals(B.getName().toString()))
+                    if (classTypeBinding != null && classTypeBinding.getName().equals(B.getName().toString())) {
                         numberOfRelations += 1;
+                    }
                 }
             }
         }
@@ -511,7 +524,52 @@ public class ParserAST {
         return numberOfRelations;
     }
 
-//    public static float calculCouplage(TypeDeclaration A, TypeDeclaration B){
-//
-//    }
+    public static String calculCouplage(TypeDeclaration A, TypeDeclaration B) {
+        if (allRelationsCounter == 0) return "0";
+        return numberOfRelationBetweenTwoClasses(A, B) + "/" + allRelationsCounter;
+    }
+
+    public static void addTypeDeclarationToList(CompilationUnit parse) {
+        TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
+        parse.accept(visitor);
+        typeDeclarationList.addAll(visitor.getTypes());
+        typeDeclarationNames.addAll(visitor.getTypes().stream().map((element) -> element.getName().toString()).toList());
+    }
+
+    public static void createListGraphePondere() {
+        for (TypeDeclaration typeDeclaration : typeDeclarationList) {
+            for (TypeDeclaration typeDeclaration1 : typeDeclarationList) {
+                if (typeDeclaration1.getName().equals(typeDeclaration.getName())) {
+                    continue;
+                }
+                System.out.println(calculCouplage(typeDeclaration, typeDeclaration1));
+                graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"->\"" + typeDeclaration1.getName() + "\"[label=\"" + calculCouplage(typeDeclaration, typeDeclaration1) + "\"];\n");
+            }
+        }
+    }
+
+
+    public static void createGraphePondere() {
+        try {
+            String name = UUID.randomUUID().toString();
+            FileWriter writer = new FileWriter("export/dot/graphePondere/" + name + ".dot");
+            writer.write("digraph \"call-graph\" {\n");
+            graphCouplageList.stream().distinct().collect(Collectors.toList()).forEach(couplageElement -> {
+                try {
+                    writer.write(couplageElement);
+                } catch (IOException e) {
+                    System.out.println("Une erreur est survenue au niveau de l'écriture des liens");
+                }
+            });
+            writer.write("}");
+            writer.close();
+            System.out.println("");
+            System.out.println("un fichier a bien été créé");
+            convertDiagramToPng("graphePondere/" + name);
+        } catch (IOException e) {
+            System.out.println("Une erreur s'est produite.");
+        }
+    }
+
+
 }
