@@ -19,9 +19,16 @@ import org.eclipse.jdt.core.dom.*;
 import javax.swing.*;
 
 public class ParserAST {
-    public static final String projectPath = "/Users/benjaminadolphe/Downloads/SootTutorial";
+//    public static final String projectPath = "/Users/benjaminadolphe/Downloads/SootTutorial";
+    //    public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\TP3_Refactoring\\After_Refactoring\\GoodBank";
+
+    public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\uaa-develop\\server";
+
+
     public static final String projectSourcePath = projectPath + "/src";
-    public static final String jrePath = "/Users/benjaminadolphe/Library/Java/JavaVirtualMachines/openjdk-16.0.1/Contents/Home/bin";
+//    public static final String jrePath = "/Users/benjaminadolphe/Library/Java/JavaVirtualMachines/openjdk-16.0.1/Contents/Home/bin";
+public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
+
 
     public static int class_compter = 0;
     public static int method_compter = 0;
