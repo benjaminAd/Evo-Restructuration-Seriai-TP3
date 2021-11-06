@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.exemple.tp2.library.Cluster;
+import com.exemple.tp2.library.Pair;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.MutableGraph;
@@ -19,15 +21,15 @@ import org.eclipse.jdt.core.dom.*;
 import javax.swing.*;
 
 public class ParserAST {
-//    public static final String projectPath = "/Users/benjaminadolphe/Downloads/SootTutorial";
+    public static final String projectPath = "/Users/benjaminadolphe/Downloads/SootTutorial";
     //    public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\TP3_Refactoring\\After_Refactoring\\GoodBank";
 
-    public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\uaa-develop\\server";
+    //public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\uaa-develop\\server";
 
 
     public static final String projectSourcePath = projectPath + "/src";
-//    public static final String jrePath = "/Users/benjaminadolphe/Library/Java/JavaVirtualMachines/openjdk-16.0.1/Contents/Home/bin";
-public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
+    public static final String jrePath = "/Users/benjaminadolphe/Library/Java/JavaVirtualMachines/azul-17.0.1/Contents/Home/bin";
+//public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
 
 
     public static int class_compter = 0;
@@ -52,6 +54,8 @@ public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
     public static List<TypeDeclaration> typeDeclarationList = new ArrayList<>();
     public static List<String> typeDeclarationNames = new ArrayList<>();
     public static List<String> graphCouplageList = new ArrayList<>();
+
+    public static Map<Pair<String, String>, Float> couplageMap = new HashMap<>();
 
     public static int allRelationsCounter = 0;
 
@@ -98,6 +102,7 @@ public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
         countAllRelations();
         createListGraphePondere();
         createGraphePondere();
+        clusteringHierarchique();
     }
 
     // read all java files from specific folder
@@ -547,6 +552,7 @@ public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
                 String couplageString = calculCouplage(typeDeclaration, typeDeclaration1);
                 float couplageFloat = calculCouplageInt(couplageString);
                 DecimalFormat df = new DecimalFormat("#.####");
+                couplageMap.put(new Pair<String, String>(typeDeclaration.getName().toString(), typeDeclaration1.getName().toString()), couplageFloat);
                 graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"->\"" + typeDeclaration1.getName() + "\"[label=\"" + df.format(couplageFloat) + " (" + couplageString + ")" + "\"];\n");
             }
         }
@@ -573,6 +579,57 @@ public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
         } catch (IOException e) {
             System.out.println("Une erreur s'est produite.");
         }
+    }
+
+    public static Pair<Cluster, Cluster> clusterProche(Map<Pair<String, String>, Float> couplages, List<Cluster> clusters) {
+        Pair<Cluster, Cluster> pair = new Pair<>();
+        float max = 0;
+        Cluster first = null;
+        Cluster second = null;
+        for (Cluster cluster : clusters) {
+            for (Cluster cluster1 : clusters) {
+                if (cluster == cluster1) continue;
+                float couplage = calculCouplageBetweenClusters(couplages, cluster, cluster1);
+                if (couplage >= max) {
+                    max = couplage;
+                    first = cluster;
+                    second = cluster1;
+                }
+            }
+        }
+        pair.setKey(first);
+        pair.setValue(second);
+        return pair;
+    }
+
+    private static float calculCouplageBetweenClusters(Map<Pair<String, String>, Float> couplages, Cluster c1, Cluster c2) {
+        float sum = 0;
+        for (String aClass : c1.getClasses()) {
+            for (String bClass : c2.getClasses()) {
+                for (Map.Entry<Pair<String, String>, Float> mapEntry : couplages.entrySet()) {
+                    if (mapEntry.getKey().equals(new Pair<>(aClass, bClass))) {
+                        sum += mapEntry.getValue();
+                    }
+                }
+            }
+        }
+        return sum;
+    }
+
+    private static ArrayList<Cluster> convertNameToClusters() {
+        return new ArrayList<>(typeDeclarationNames.stream().map(Cluster::new).toList());
+    }
+
+    public static Cluster clusteringHierarchique() {
+        List<Cluster> clusters = convertNameToClusters();
+        while (clusters.size() > 1) {
+            Pair<Cluster, Cluster> pair = clusterProche(couplageMap, clusters);
+            Cluster c3 = new Cluster(pair.getKey(), pair.getValue());
+            clusters.remove(pair.getKey());
+            clusters.remove(pair.getValue());
+            clusters.add(c3);
+        }
+        return clusters.get(0);
     }
 
 
