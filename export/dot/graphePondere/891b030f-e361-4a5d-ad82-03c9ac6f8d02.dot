@@ -1,0 +1,8 @@
+digraph "call-graph" {
+	"CallGraphs"->"A"[label="1.0 (1/1)"];
+	"CallGraphs"->"Main"[label="0.0 (0/1)"];
+	"A"->"CallGraphs"[label="0.0 (0/1)"];
+	"A"->"Main"[label="0.0 (0/1)"];
+	"Main"->"CallGraphs"[label="0.0 (0/1)"];
+	"Main"->"A"[label="0.0 (0/1)"];
+}
