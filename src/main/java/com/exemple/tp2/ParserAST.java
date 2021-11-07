@@ -1,13 +1,5 @@
 package com.exemple.tp2;
 
-import java.awt.*;
-import java.awt.Dimension;
-import java.io.*;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.exemple.tp2.library.Cluster;
 import com.exemple.tp2.library.Pair;
 import guru.nidi.graphviz.engine.Format;
@@ -19,9 +11,16 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 
 import javax.swing.*;
+import java.awt.Dimension;
+import java.awt.*;
+import java.io.*;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ParserAST {
-    public static final String projectPath = "/Users/benjaminadolphe/Downloads/SootTutorial";
+    public static final String projectPath = "/Users/benjaminadolphe/Downloads/seriousgame_environnement";
     //    public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\TP3_Refactoring\\After_Refactoring\\GoodBank";
 
     //public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\uaa-develop\\server";
@@ -91,18 +90,18 @@ public class ParserAST {
         getTotalNumberOfLines(parse);
         addTypeDeclarationToList(parse);
 
-//        getClassesWithMostMethods();
-//        getClassesWithMostFields();
-//        moreThanXMethods(2);
-//        showExo1();
+        getClassesWithMostMethods();
+        getClassesWithMostFields();
+        moreThanXMethods(2);
+        showExo1();
 
         System.setProperty("java.awt.headless", "false");
-        // createDiagram();
+        createDiagram();
 
         countAllRelations();
         createListGraphePondere();
         createGraphePondere();
-        clusteringHierarchique();
+        System.out.println(clusteringHierarchique());
     }
 
     // read all java files from specific folder
