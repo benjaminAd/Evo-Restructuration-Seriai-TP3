@@ -18,7 +18,13 @@ public class Cluster {
     }
 
     public List<String> getClasses() {
-        return classes;
+        if (!classes.isEmpty())
+            return classes;
+
+        List<String> classNames = new ArrayList<>(pairs.getKey().getClasses());
+        classNames.addAll(pairs.getValue().getClasses());
+
+        return classNames;
     }
 
     @Override
