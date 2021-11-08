@@ -4,14 +4,14 @@ import java.util.Objects;
 
 public class Pair<K, V> {
     private K key;
-    private K value;
+    private V value;
 
     public Pair() {
         key = null;
         value = null;
     }
 
-    public Pair(K key, K value) {
+    public Pair(K key, V value) {
         this.key = key;
         this.value = value;
     }
@@ -24,11 +24,11 @@ public class Pair<K, V> {
         this.key = key;
     }
 
-    public K getValue() {
+    public V getValue() {
         return value;
     }
 
-    public void setValue(K value) {
+    public void setValue(V value) {
         this.value = value;
     }
 
