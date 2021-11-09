@@ -381,17 +381,7 @@ public class ParserAST {
             String name = UUID.randomUUID().toString();
             FileWriter writer = new FileWriter("export/dot/" + name + ".dot");
             writer.write("digraph \"call-graph\" {\n");
-            methodInvocations.stream().distinct().collect(Collectors.toList()).forEach(methodInvocation -> {
-                try {
-                    writer.write(methodInvocation);
-                } catch (IOException e) {
-                    System.out.println("Une erreur est survenue au niveau de l'écriture des liens");
-                }
-            });
-            writer.write("}");
-            writer.close();
-            System.out.println("");
-            System.out.println("un fichier a bien été créé");
+            distinct(writer, methodInvocations);
             convertDiagramToPng(name);
         } catch (IOException e) {
             System.out.println("Une erreur s'est produite.");
@@ -514,7 +504,6 @@ public class ParserAST {
         for (MethodDeclaration Amethod : A.getMethods()) {
             MethodInvocationVisitor visitor = new MethodInvocationVisitor();
             Amethod.accept(visitor);
-            // on regarde chaque invocation si elle invoque une méthode de B
             for (MethodInvocation methodInvocation : visitor.getMethods()) {
                 IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
                 if (methodBinding != null) {
@@ -526,6 +515,19 @@ public class ParserAST {
             }
         }
 
+        for (MethodDeclaration Bmethod : B.getMethods()) {
+            MethodInvocationVisitor visitor = new MethodInvocationVisitor();
+            Bmethod.accept(visitor);
+            for (MethodInvocation methodInvocation : visitor.getMethods()) {
+                IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+                if (methodBinding != null) {
+                    ITypeBinding classTypeBinding = methodBinding.getDeclaringClass();
+                    if (classTypeBinding != null && classTypeBinding.getName().equals(A.getName().toString())) {
+                        numberOfRelations += 1;
+                    }
+                }
+            }
+        }
 
         return numberOfRelations;
     }
@@ -548,8 +550,10 @@ public class ParserAST {
     }
 
     public static void createListGraphePondere() {
-        for (TypeDeclaration typeDeclaration : typeDeclarationList) {
-            for (TypeDeclaration typeDeclaration1 : typeDeclarationList) {
+        for (int i = 0; i < typeDeclarationList.size(); i++) {
+            for (int j = i; j < typeDeclarationList.size(); j++) {
+                TypeDeclaration typeDeclaration = typeDeclarationList.get(i);
+                TypeDeclaration typeDeclaration1 = typeDeclarationList.get(j);
                 if (typeDeclaration1.getName().equals(typeDeclaration.getName())) {
                     continue;
                 }
@@ -557,7 +561,7 @@ public class ParserAST {
                 float couplageFloat = calculCouplageInt(couplageString);
                 DecimalFormat df = new DecimalFormat("#.####");
                 couplageMap.put(new Pair<String, String>(typeDeclaration.getName().toString(), typeDeclaration1.getName().toString()), couplageFloat);
-                graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"->\"" + typeDeclaration1.getName() + "\"[label=\"" + df.format(couplageFloat) + " (" + couplageString + ")" + "\"];\n");
+                graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"--\"" + typeDeclaration1.getName() + "\"[label=\"" + df.format(couplageFloat) + " (" + couplageString + ")" + "\"];\n");
             }
         }
     }
@@ -568,22 +572,26 @@ public class ParserAST {
         try {
             String name = UUID.randomUUID().toString();
             FileWriter writer = new FileWriter("export/dot/graphePondere/" + name + ".dot");
-            writer.write("digraph \"call-graph\" {\n");
-            graphCouplageList.stream().distinct().collect(Collectors.toList()).forEach(couplageElement -> {
-                try {
-                    writer.write(couplageElement);
-                } catch (IOException e) {
-                    System.out.println("Une erreur est survenue au niveau de l'écriture des liens");
-                }
-            });
-            writer.write("}");
-            writer.close();
-            System.out.println("");
-            System.out.println("un fichier a bien été créé");
+            writer.write("graph \"call-graph\" {\n");
+            distinct(writer, graphCouplageList);
             convertDiagramToPng("graphePondere/" + name);
         } catch (IOException e) {
             System.out.println("Une erreur s'est produite.");
         }
+    }
+
+    private static void distinct(FileWriter writer, List<String> graphCouplageList) throws IOException {
+        graphCouplageList.stream().distinct().collect(Collectors.toList()).forEach(couplageElement -> {
+            try {
+                writer.write(couplageElement);
+            } catch (IOException e) {
+                System.out.println("Une erreur est survenue au niveau de l'écriture des liens");
+            }
+        });
+        writer.write("}");
+        writer.close();
+        System.out.println("");
+        System.out.println("un fichier a bien été créé");
     }
 
     // --- exo 2.1 --- //
