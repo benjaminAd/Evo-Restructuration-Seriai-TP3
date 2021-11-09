@@ -2,6 +2,7 @@ package com.exemple.tp2;
 
 import com.exemple.tp2.library.Cluster;
 import com.exemple.tp2.library.Pair;
+import com.exemple.tp2.library.Triplet;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.MutableGraph;
@@ -586,8 +587,7 @@ public class ParserAST {
     }
 
     // --- exo 2.1 --- //
-
-    public static Pair<Cluster, Cluster> clusterProche(Map<Pair<String, String>, Float> couplages, List<Cluster> clusters) {
+    public static Triplet<Cluster, Cluster, Float> clusterProche(Map<Pair<String, String>, Float> couplages, List<Cluster> clusters) {
         Pair<Cluster, Cluster> pair = new Pair<>();
         float max = 0;
         Cluster first = null;
@@ -605,7 +605,7 @@ public class ParserAST {
         }
         pair.setKey(first);
         pair.setValue(second);
-        return pair;
+        return new Triplet<>(pair, max);
     }
 
     private static float calculCouplageBetweenClusters(Map<Pair<String, String>, Float> couplages, Cluster c1, Cluster c2) {
@@ -629,10 +629,10 @@ public class ParserAST {
     public static Cluster clusteringHierarchique() {
         List<Cluster> clusters = convertNameToClusters();
         while (clusters.size() > 1) {
-            Pair<Cluster, Cluster> pair = clusterProche(couplageMap, clusters);
-            Cluster c3 = new Cluster(pair.getKey(), pair.getValue());
-            clusters.remove(pair.getKey());
-            clusters.remove(pair.getValue());
+            Triplet<Cluster, Cluster, Float> triplet = clusterProche(couplageMap, clusters);
+            Cluster c3 = new Cluster(triplet.getFirst(), triplet.getSecond(), triplet.getThird());
+            clusters.remove(triplet.getFirst());
+            clusters.remove(triplet.getSecond());
             clusters.add(c3);
         }
         return clusters.get(0);

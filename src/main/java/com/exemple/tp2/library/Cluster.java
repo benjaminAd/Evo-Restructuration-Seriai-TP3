@@ -1,20 +1,23 @@
 package com.exemple.tp2.library;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cluster {
-    List<String> classes = new ArrayList<>();
-    Pair<Cluster, Cluster> pairs = new Pair<>();
+    private List<String> classes = new ArrayList<>();
+    private Pair<Cluster, Cluster> pairs = new Pair<>();
+    private float value;
     private static int i = 0;
 
     public Cluster(String name) {
-        classes.add(name);
+        this.classes.add(name);
     }
 
-    public Cluster(Cluster c1, Cluster c2) {
+    public Cluster(Cluster c1, Cluster c2, float value) {
         pairs.setKey(c1);
         pairs.setValue(c2);
+        this.value = value;
     }
 
     public List<String> getClasses() {
@@ -29,6 +32,7 @@ public class Cluster {
 
     @Override
     public String toString() {
+        DecimalFormat df = new DecimalFormat("#.##############");
         if (!classes.isEmpty() && pairs.getKey() == null) {
             StringBuilder st = new StringBuilder();
             for (int i = 0; i < classes.size(); i++) {
@@ -40,6 +44,6 @@ public class Cluster {
             return st.toString();
         }
         i++;
-        return "(" + i + " " + pairs.getKey() + "-->" + pairs.getValue() + " " + i + ")";
+        return "(" + i + " " + "( " + pairs.getKey() + "-->" + pairs.getValue() + " " + df.format(this.value) + " )" + " " + i + ")";
     }
 }
