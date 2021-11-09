@@ -32,7 +32,6 @@ public class Cluster {
 
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat("#.##############");
         if (!classes.isEmpty() && pairs.getKey() == null) {
             StringBuilder st = new StringBuilder();
             for (int i = 0; i < classes.size(); i++) {
@@ -44,6 +43,6 @@ public class Cluster {
             return st.toString();
         }
         i++;
-        return "(" + i + " " + "( " + pairs.getKey() + "-->" + pairs.getValue() + " " + df.format(this.value) + " )" + " " + i + ")";
+        return "(" + i + " " + pairs.getKey() + "-->" + pairs.getValue() + " " + i + ")";
     }
 }
