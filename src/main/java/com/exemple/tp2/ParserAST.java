@@ -30,7 +30,7 @@ public class ParserAST {
 
 //    public static final String jrePath = "/Users/benjaminadolphe/Library/Java/JavaVirtualMachines/azul-17.0.1/Contents/Home/bin";
     public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
-    
+
     public static int class_compter = 0;
     public static int method_compter = 0;
     public static int fields_compter = 0;
@@ -479,6 +479,10 @@ public class ParserAST {
         Desktop.getDesktop().open(new File(filename));
     }
 
+    // --- TP3 --- //
+
+    // --- exo 1.1 --- //
+
     public static void countAllRelations() {
         for (TypeDeclaration typeDeclaration : typeDeclarationList) {
             if (typeDeclaration.isInterface()) continue;
@@ -557,6 +561,7 @@ public class ParserAST {
         }
     }
 
+    // --- exo 1.2 --- //
 
     public static void createGraphePondere() {
         try {
@@ -579,6 +584,8 @@ public class ParserAST {
             System.out.println("Une erreur s'est produite.");
         }
     }
+
+    // --- exo 2.1 --- //
 
     public static Pair<Cluster, Cluster> clusterProche(Map<Pair<String, String>, Float> couplages, List<Cluster> clusters) {
         Pair<Cluster, Cluster> pair = new Pair<>();
