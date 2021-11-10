@@ -59,6 +59,9 @@ public class ParserAST {
 
     public static int allRelationsCounter = 0;
 
+    private static int countLevel = 0;
+    public static List<String> dendroList = new ArrayList<>();
+
     public static void main(String[] args) throws IOException {
 
         // read java files
@@ -102,7 +105,7 @@ public class ParserAST {
         countAllRelations();
         createListGraphePondere();
         createGraphePondere();
-        System.out.println(clusteringHierarchique());
+        System.out.println("Cluster : "+clusteringHierarchique());
     }
 
     // read all java files from specific folder
@@ -392,7 +395,7 @@ public class ParserAST {
         try (InputStream dot = new FileInputStream("export/dot/" + name + ".dot")) {
             MutableGraph g = new Parser().read(dot);
             Graphviz.fromGraph(g).width(10000).render(Format.PNG).toFile(new File("export/images/" + name + ".png"));
-            System.out.println("Votre graphique a été généré au format PNG");
+            System.out.println("\nVotre graphique a été généré au format PNG");
             showView("export/images/" + name + ".png");
         } catch (IOException e) {
             e.printStackTrace();
@@ -590,8 +593,7 @@ public class ParserAST {
         });
         writer.write("}");
         writer.close();
-        System.out.println("");
-        System.out.println("un fichier a bien été créé");
+        System.out.println("\nun fichier a bien été créé");
     }
 
     // --- exo 2.1 --- //
@@ -638,13 +640,13 @@ public class ParserAST {
         List<Cluster> clusters = convertNameToClusters();
         while (clusters.size() > 1) {
             Triplet<Cluster, Cluster, Float> triplet = clusterProche(couplageMap, clusters);
-            Cluster c3 = new Cluster(triplet.getFirst(), triplet.getSecond(), triplet.getThird());
+            Cluster c3 = new Cluster(triplet.getFirst(), triplet.getSecond(), triplet.getThird(),countLevel);
+            countLevel++;
             clusters.remove(triplet.getFirst());
             clusters.remove(triplet.getSecond());
             clusters.add(c3);
         }
         return clusters.get(0);
     }
-
 
 }

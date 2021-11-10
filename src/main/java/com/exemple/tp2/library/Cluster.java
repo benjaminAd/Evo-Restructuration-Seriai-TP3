@@ -1,6 +1,5 @@
 package com.exemple.tp2.library;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,16 +7,17 @@ public class Cluster {
     private List<String> classes = new ArrayList<>();
     private Pair<Cluster, Cluster> pairs = new Pair<>();
     private float value;
-    private static int i = 0;
+    private int compteur;
 
     public Cluster(String name) {
         this.classes.add(name);
     }
 
-    public Cluster(Cluster c1, Cluster c2, float value) {
+    public Cluster(Cluster c1, Cluster c2, float value, int compteur) {
         pairs.setKey(c1);
         pairs.setValue(c2);
         this.value = value;
+        this.compteur = compteur;
     }
 
     public List<String> getClasses() {
@@ -37,12 +37,11 @@ public class Cluster {
             for (int i = 0; i < classes.size(); i++) {
                 if (i == 0) st.append("(");
                 st.append(classes.get(i));
-                if (i != classes.size() - 1) st.append(",");
+                if (i != classes.size() - 1) st.append(";");
                 if (i == classes.size() - 1) st.append(")");
             }
             return st.toString();
         }
-        i++;
-        return "(" + i + " " + pairs.getKey() + "-->" + pairs.getValue() + " " + i + ")";
+        return "(" + compteur + " " + pairs.getKey() + "--" + pairs.getValue() + " " + compteur + ")";
     }
 }
