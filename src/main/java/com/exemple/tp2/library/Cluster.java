@@ -20,6 +20,10 @@ public class Cluster {
         this.compteur = compteur;
     }
 
+    public float getValue() {
+        return value;
+    }
+
     public List<String> getClasses() {
         if (!classes.isEmpty())
             return classes;
@@ -28,6 +32,10 @@ public class Cluster {
         classNames.addAll(pairs.getValue().getClasses());
 
         return classNames;
+    }
+
+    public Pair<Cluster, Cluster> getPairs() {
+        return pairs;
     }
 
     @Override

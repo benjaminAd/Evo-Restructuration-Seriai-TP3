@@ -60,7 +60,6 @@ public class ParserAST {
     public static int allRelationsCounter = 0;
 
     private static int countLevel = 0;
-    public static List<String> dendroList = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
 
@@ -68,7 +67,6 @@ public class ParserAST {
         final File folder = new File(projectSourcePath);
         ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
         StringBuilder allContent = new StringBuilder();
-        //
         for (File fileEntry : javaFiles) {
             String content = FileUtils.readFileToString(fileEntry);
             allContent.append(content);
@@ -105,7 +103,12 @@ public class ParserAST {
         countAllRelations();
         createListGraphePondere();
         createGraphePondere();
-        System.out.println("Cluster : "+clusteringHierarchique());
+        Cluster dendro = clusteringHierarchique();
+        System.out.println("Cluster : " + dendro);
+        List<Cluster> clusters = selection_cluster(dendro);
+        for (Cluster cluster : clusters) {
+            System.out.println("Un cluster : \n" + cluster);
+        }
     }
 
     // read all java files from specific folder
@@ -488,6 +491,7 @@ public class ParserAST {
                     if (methodBinding != null) {
                         ITypeBinding classTypeBinding = methodBinding.getDeclaringClass();
                         if (classTypeBinding != null && !classTypeBinding.getName().equals(typeDeclaration.getName().toString()) && typeDeclarationNames.contains(classTypeBinding.getName())) {
+//                            System.out.println("Relation : " + typeDeclaration.getName().toString() + " --> " + classTypeBinding.getName() + " pour la méthode : " + methodInvocation.getName());
                             allRelationsCounter += 1;
                         }
                     }
@@ -537,10 +541,11 @@ public class ParserAST {
 
     public static String calculCouplage(TypeDeclaration A, TypeDeclaration B) {
         if (allRelationsCounter == 0) return "0";
+//        System.out.println("Nombre de relation entre " + A.getName().toString() + " et " + B.getName().toString() + " est de " + numberOfRelationBetweenTwoClasses(A, B) + "/" + allRelationsCounter);
         return numberOfRelationBetweenTwoClasses(A, B) + "/" + allRelationsCounter;
     }
 
-    public static float calculCouplageInt(String couplage) {
+    public static float calculCouplageFloat(String couplage) {
         String[] elements = couplage.split("/");
         return (float) Integer.parseInt(elements[0]) / Integer.parseInt(elements[1]);
     }
@@ -561,7 +566,8 @@ public class ParserAST {
                     continue;
                 }
                 String couplageString = calculCouplage(typeDeclaration, typeDeclaration1);
-                float couplageFloat = calculCouplageInt(couplageString);
+                float couplageFloat = calculCouplageFloat(couplageString);
+//                System.out.println("couplage btw " + typeDeclaration.getName().toString() + " et " + typeDeclaration1.getName().toString() + " " + couplageFloat);
                 DecimalFormat df = new DecimalFormat("#.####");
                 couplageMap.put(new Pair<String, String>(typeDeclaration.getName().toString(), typeDeclaration1.getName().toString()), couplageFloat);
                 graphCouplageList.add("\t" + "\"" + typeDeclaration.getName() + "\"--\"" + typeDeclaration1.getName() + "\"[label=\"" + df.format(couplageFloat) + " (" + couplageString + ")" + "\"];\n");
@@ -640,13 +646,68 @@ public class ParserAST {
         List<Cluster> clusters = convertNameToClusters();
         while (clusters.size() > 1) {
             Triplet<Cluster, Cluster, Float> triplet = clusterProche(couplageMap, clusters);
-            Cluster c3 = new Cluster(triplet.getFirst(), triplet.getSecond(), triplet.getThird(),countLevel);
+            Cluster c3 = new Cluster(triplet.getFirst(), triplet.getSecond(), triplet.getThird(), countLevel);
             countLevel++;
             clusters.remove(triplet.getFirst());
             clusters.remove(triplet.getSecond());
             clusters.add(c3);
         }
         return clusters.get(0);
+    }
+
+    public static List<Cluster> selection_cluster(Cluster dendro) {
+        List<Cluster> R = new ArrayList<>();
+        Stack<Cluster> parcoursCluster = new Stack<>();
+        parcoursCluster.push(dendro);
+        while (!parcoursCluster.isEmpty()) {
+            Cluster pere = parcoursCluster.pop();
+            Pair<Cluster, Cluster> fils = pere.getPairs();
+            Cluster f1 = fils.getKey();
+            Cluster f2 = fils.getValue();
+            if (f1 == null || f2 == null) {
+                R.add(pere);
+                continue;
+            }
+            if (S(pere) > moyenne(S(f1, f2))) {
+                R.add(pere);
+            } else {
+                parcoursCluster.push(f1);
+                parcoursCluster.push(f2);
+            }
+        }
+        return R;
+    }
+
+    private static float S(Cluster p) {
+        float s1 = p.getValue();
+        float s2 = S2(p);
+        System.out.println("S = " + s1 / s2);
+        return s1 / s2;
+    }
+
+    private static float S2(Cluster p) {
+        float sum = 0;
+        for (String aClass : p.getClasses()) {
+            for (String typeDeclarationName : typeDeclarationNames) {
+                if (p.getClasses().contains(typeDeclarationName)) continue;
+                for (Map.Entry<Pair<String, String>, Float> entry : couplageMap.entrySet()) {
+                    if (entry.getKey().equals(new Pair<>(aClass, typeDeclarationName))) {
+                        sum += entry.getValue();
+                    }
+                }
+            }
+        }
+        if (sum == 0) sum = 1;
+        System.out.println("S2 = " + sum);
+        return sum;
+    }
+
+    private static Pair<Float, Float> S(Cluster c1, Cluster c2) {
+        return new Pair<>(S(c1), S(c2));
+    }
+
+    private static float moyenne(Pair<Float, Float> pair) {
+        return (pair.getValue() + pair.getKey()) / 2;
     }
 
 }
