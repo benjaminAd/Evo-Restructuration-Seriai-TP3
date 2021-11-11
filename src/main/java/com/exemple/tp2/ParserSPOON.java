@@ -23,9 +23,10 @@ import java.util.stream.Collectors;
 
 public class ParserSPOON {
     public static final String projectPath = "/Users/benjaminadolphe/Downloads/seriousgame_environnement";
-    //  public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\TP3_Refactoring\\After_Refactoring\\GoodBank";
+//  public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\TP3_Refactoring\\After_Refactoring\\GoodBank";
 //  public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\uaa-develop\\server";
 //  public static final String projectPath = "A:\\Projets\\seriousgame_environnement";
+//  public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
     public static final String projectSourcePath = projectPath + "/src";
 
     static SpoonAPI spoon;
@@ -39,7 +40,6 @@ public class ParserSPOON {
 
     static HashMap<Pair<String, String>, Float> couplageMap = new HashMap<>();
 
-    //public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
     public static void main(String[] args) throws IOException {
         System.setProperty("java.awt.headless", "false");
         // read java files
