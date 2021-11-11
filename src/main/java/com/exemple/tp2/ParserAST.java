@@ -80,21 +80,21 @@ public class ParserAST {
         // printVariableInfo(parse);
 
         //print method invocations
-        printMethodInvocationInfo(parse);
-        countNumberClass(parse);
-        countNumberPackages(parse);
-        getNumberOfLinesPerMethod(parse);
-        getAverageNumberOfFieldsPerClass(parse);
-        putClassesMethodsInHashMap(parse);
-        putClassesFieldsInHashMap(parse);
-        getMethodsWithLines(parse);
-        getMaxParameters(parse);
-        getTotalNumberOfLines(parse);
+//        printMethodInvocationInfo(parse);
+//        countNumberClass(parse);
+//        countNumberPackages(parse);
+//        getNumberOfLinesPerMethod(parse);
+//        getAverageNumberOfFieldsPerClass(parse);
+//        putClassesMethodsInHashMap(parse);
+//        putClassesFieldsInHashMap(parse);
+//        getMethodsWithLines(parse);
+//        getMaxParameters(parse);
+//        getTotalNumberOfLines(parse);
         addTypeDeclarationToList(parse);
 
-        getClassesWithMostMethods();
-        getClassesWithMostFields();
-        moreThanXMethods(2);
+//        getClassesWithMostMethods();
+//        getClassesWithMostFields();
+//        moreThanXMethods(2);
 //        showExo1();
 
         System.setProperty("java.awt.headless", "false");
@@ -148,7 +148,7 @@ public class ParserAST {
     }
 
     // navigate method information
-    public static void printMethodInfo(CompilationUnit parse) {
+    private static void printMethodInfo(CompilationUnit parse) {
         MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
         parse.accept(visitor);
 
@@ -160,7 +160,7 @@ public class ParserAST {
     }
 
     // navigate variables inside method
-    public static void printVariableInfo(CompilationUnit parse) {
+    private static void printVariableInfo(CompilationUnit parse) {
 
         MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
         parse.accept(visitor1);
@@ -181,7 +181,7 @@ public class ParserAST {
     }
 
     // navigate method invocations inside method
-    public static void printMethodInvocationInfo(CompilationUnit parse) {
+    private static void printMethodInvocationInfo(CompilationUnit parse) {
 
         MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
         parse.accept(visitor1);
@@ -212,7 +212,7 @@ public class ParserAST {
         }
     }
 
-    public static void countNumberClass(CompilationUnit parse) {
+    private static void countNumberClass(CompilationUnit parse) {
         TypeDeclarationVisitor typeDeclarationVisitor = new TypeDeclarationVisitor();
         parse.accept(typeDeclarationVisitor);
         typeDeclarationVisitor.getTypes().forEach(typeDeclaration -> {
@@ -224,13 +224,13 @@ public class ParserAST {
         });
     }
 
-    public static void countNumberPackages(CompilationUnit parse) {
+    private static void countNumberPackages(CompilationUnit parse) {
         PackageVisitor packageVisitor = new PackageVisitor();
         parse.accept(packageVisitor);
         packageVisitor.getPackageDeclarations().forEach(packageDeclaration -> packageList.add(packageDeclaration.getName().toString()));
     }
 
-    public static void getNumberOfLinesPerMethod(CompilationUnit parse) {
+    private static void getNumberOfLinesPerMethod(CompilationUnit parse) {
         MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
         parse.accept(visitor);
         for (MethodDeclaration method : visitor.getMethods()) {
@@ -238,7 +238,7 @@ public class ParserAST {
         }
     }
 
-    public static int getNumberOfLineOfAMethod(CompilationUnit parse, MethodDeclaration method) {
+    private static int getNumberOfLineOfAMethod(CompilationUnit parse, MethodDeclaration method) {
         if (method.getBody() == null) {
             return 0;
         }
@@ -249,7 +249,7 @@ public class ParserAST {
         return Math.max(end - beginning - 1, 0);
     }
 
-    public static void getAverageNumberOfFieldsPerClass(CompilationUnit parse) {
+    private static void getAverageNumberOfFieldsPerClass(CompilationUnit parse) {
         TypeDeclarationVisitor typeDeclarationVisitor = new TypeDeclarationVisitor();
         parse.accept(typeDeclarationVisitor);
         typeDeclarationVisitor.getTypes().forEach(typeDeclaration -> {
@@ -259,7 +259,7 @@ public class ParserAST {
         });
     }
 
-    public static void putClassesMethodsInHashMap(CompilationUnit parse) {
+    private static void putClassesMethodsInHashMap(CompilationUnit parse) {
         TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
         parse.accept(visitor);
         visitor.getTypes().forEach(type -> {
@@ -268,7 +268,7 @@ public class ParserAST {
         });
     }
 
-    public static void getClassesWithMostMethods() {
+    private static void getClassesWithMostMethods() {
         int numberOfClasses = (int) Math.ceil(0.1 * classesMethodsHashMap.size());
 
         List<String> classes = classesMethodsHashMap.entrySet()
@@ -280,7 +280,7 @@ public class ParserAST {
         classesWithMostMethods = classes.subList(0, numberOfClasses);
     }
 
-    public static void putClassesFieldsInHashMap(CompilationUnit parse) {
+    private static void putClassesFieldsInHashMap(CompilationUnit parse) {
         TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
         parse.accept(visitor);
 
@@ -291,7 +291,7 @@ public class ParserAST {
         });
     }
 
-    public static void getClassesWithMostFields() {
+    private static void getClassesWithMostFields() {
         int numberOfClasses = (int) Math.ceil(0.1 * classesFieldsHashMap.size());
 
         List<String> classes = classesFieldsHashMap.entrySet()
@@ -302,13 +302,13 @@ public class ParserAST {
         classesWithMostFields = classes.subList(0, numberOfClasses);
     }
 
-    public static List<String> getClassesWithMostFieldsAndMethods() {
+    private static List<String> getClassesWithMostFieldsAndMethods() {
         List<String> res = new ArrayList<String>(classesWithMostMethods);
         res.retainAll(classesWithMostFields);
         return res;
     }
 
-    public static void moreThanXMethods(int x) {
+    private static void moreThanXMethods(int x) {
         classesMethodsHashMap.forEach((key, value) -> {
             if (value > x) {
                 moreThanXList.add(key);
@@ -316,7 +316,7 @@ public class ParserAST {
         });
     }
 
-    public static void getMethodsWithLines(CompilationUnit parse) {
+    private static void getMethodsWithLines(CompilationUnit parse) {
         TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
         parse.accept(visitor);
 
@@ -333,7 +333,7 @@ public class ParserAST {
         }
     }
 
-    public static List<String> getMethodsWithMostLines() {
+    private static List<String> getMethodsWithMostLines() {
 
         List<String> methodsWithMostLines = new ArrayList<String>();
 
@@ -352,7 +352,7 @@ public class ParserAST {
         return methodsWithMostLines;
     }
 
-    public static void getMaxParameters(CompilationUnit parse) {
+    private static void getMaxParameters(CompilationUnit parse) {
         MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
         parse.accept(visitor);
         visitor.getMethods().forEach(methodDeclaration -> {
@@ -362,7 +362,7 @@ public class ParserAST {
         });
     }
 
-    public static void getTotalNumberOfLines(CompilationUnit parse) {
+    private static void getTotalNumberOfLines(CompilationUnit parse) {
         TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
         parse.accept(visitor);
 
@@ -382,7 +382,7 @@ public class ParserAST {
         app_line_compter += parse.getCommentList().size();
     }
 
-    public static void createDiagram() {
+    private static void createDiagram() {
         try {
             String name = UUID.randomUUID().toString();
             FileWriter writer = new FileWriter("export/dot/" + name + ".dot");
@@ -394,7 +394,7 @@ public class ParserAST {
         }
     }
 
-    public static void convertDiagramToPng(String name) {
+    private static void convertDiagramToPng(String name) {
         try (InputStream dot = new FileInputStream("export/dot/" + name + ".dot")) {
             MutableGraph g = new Parser().read(dot);
             Graphviz.fromGraph(g).width(10000).render(Format.PNG).toFile(new File("export/images/" + name + ".png"));
@@ -405,7 +405,7 @@ public class ParserAST {
         }
     }
 
-    public static void showExo1() {
+    private static void showExo1() {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Résultats de l'analyse du programme");
@@ -472,7 +472,7 @@ public class ParserAST {
         frame.show();
     }
 
-    public static void showView(String filename) throws IOException {
+    private static void showView(String filename) throws IOException {
         Desktop.getDesktop().open(new File(filename));
     }
 
@@ -480,7 +480,7 @@ public class ParserAST {
 
     // --- exo 1.1 --- //
 
-    public static void countAllRelations() {
+    private static void countAllRelations() {
         for (TypeDeclaration typeDeclaration : typeDeclarationList) {
             if (typeDeclaration.isInterface()) continue;
             for (MethodDeclaration method : typeDeclaration.getMethods()) {
@@ -500,7 +500,7 @@ public class ParserAST {
         }
     }
 
-    public static int numberOfRelationBetweenTwoClasses(TypeDeclaration A, TypeDeclaration B) {
+    private static int numberOfRelationBetweenTwoClasses(TypeDeclaration A, TypeDeclaration B) {
         int numberOfRelations = 0;
 
         if (A.isInterface() || B.isInterface()) {
@@ -539,25 +539,25 @@ public class ParserAST {
         return numberOfRelations;
     }
 
-    public static String calculCouplage(TypeDeclaration A, TypeDeclaration B) {
+    private static String calculCouplage(TypeDeclaration A, TypeDeclaration B) {
         if (allRelationsCounter == 0) return "0";
 //        System.out.println("Nombre de relation entre " + A.getName().toString() + " et " + B.getName().toString() + " est de " + numberOfRelationBetweenTwoClasses(A, B) + "/" + allRelationsCounter);
         return numberOfRelationBetweenTwoClasses(A, B) + "/" + allRelationsCounter;
     }
 
-    public static float calculCouplageFloat(String couplage) {
+    private static float calculCouplageFloat(String couplage) {
         String[] elements = couplage.split("/");
         return (float) Integer.parseInt(elements[0]) / Integer.parseInt(elements[1]);
     }
 
-    public static void addTypeDeclarationToList(CompilationUnit parse) {
+    private static void addTypeDeclarationToList(CompilationUnit parse) {
         TypeDeclarationVisitor visitor = new TypeDeclarationVisitor();
         parse.accept(visitor);
         typeDeclarationList.addAll(visitor.getTypes());
         typeDeclarationNames.addAll(visitor.getTypes().stream().map((element) -> element.getName().toString()).toList());
     }
 
-    public static void createListGraphePondere() {
+    private static void createListGraphePondere() {
         for (int i = 0; i < typeDeclarationList.size(); i++) {
             for (int j = i; j < typeDeclarationList.size(); j++) {
                 TypeDeclaration typeDeclaration = typeDeclarationList.get(i);
@@ -577,7 +577,7 @@ public class ParserAST {
 
     // --- exo 1.2 --- //
 
-    public static void createGraphePondere() {
+    private static void createGraphePondere() {
         try {
             String name = UUID.randomUUID().toString();
             FileWriter writer = new FileWriter("export/dot/graphePondere/" + name + ".dot");
@@ -603,7 +603,7 @@ public class ParserAST {
     }
 
     // --- exo 2.1 --- //
-    public static Triplet<Cluster, Cluster, Float> clusterProche(Map<Pair<String, String>, Float> couplages, List<Cluster> clusters) {
+    private static Triplet<Cluster, Cluster, Float> clusterProche(Map<Pair<String, String>, Float> couplages, List<Cluster> clusters) {
         Pair<Cluster, Cluster> pair = new Pair<>();
         float max = 0;
         Cluster first = null;
@@ -642,7 +642,7 @@ public class ParserAST {
         return new ArrayList<>(typeDeclarationNames.stream().map(Cluster::new).toList());
     }
 
-    public static Cluster clusteringHierarchique() {
+    private static Cluster clusteringHierarchique() {
         List<Cluster> clusters = convertNameToClusters();
         while (clusters.size() > 1) {
             Triplet<Cluster, Cluster, Float> triplet = clusterProche(couplageMap, clusters);
@@ -655,7 +655,7 @@ public class ParserAST {
         return clusters.get(0);
     }
 
-    public static List<Cluster> selection_cluster(Cluster dendro) {
+    private static List<Cluster> selection_cluster(Cluster dendro) {
         List<Cluster> R = new ArrayList<>();
         Stack<Cluster> parcoursCluster = new Stack<>();
         parcoursCluster.push(dendro);
@@ -681,7 +681,6 @@ public class ParserAST {
     private static float S(Cluster p) {
         float s1 = p.getValue();
         float s2 = S2(p);
-        System.out.println("S = " + s1 / s2);
         return s1 / s2;
     }
 
@@ -698,7 +697,6 @@ public class ParserAST {
             }
         }
         if (sum == 0) sum = 1;
-        System.out.println("S2 = " + sum);
         return sum;
     }
 
