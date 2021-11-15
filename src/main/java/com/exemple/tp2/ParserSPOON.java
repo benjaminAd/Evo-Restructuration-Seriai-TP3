@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ParserSPOON {
-    public static final String projectPath = "/Users/benjaminadolphe/Downloads/seriousgame_environnement";
-//  public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\TP3_Refactoring\\After_Refactoring\\GoodBank";
+    public static final String projectPath = "/Users/benjaminadolphe/Desktop/fac/M2/S1 - local/HAI913I-Evolution-et-restructuration-des-logiciels/SootTutorial";
+    //  public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\TP3_Refactoring\\After_Refactoring\\GoodBank";
 //  public static final String projectPath = "C:\\Users\\Alex\\Documents\\GitHub\\uaa-develop\\server";
 //  public static final String projectPath = "A:\\Projets\\seriousgame_environnement";
 //  public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_301";
@@ -62,7 +62,8 @@ public class ParserSPOON {
 
     private static void getAllClass() {
         for (CtClass javaClass : spoon.getModel().getElements(new TypeFilter<>(CtClass.class))) {
-            if (javaClass.isEnum() || javaClass.isInterface() || javaClass.isAbstract()) continue;
+            if (javaClass.isEnum() || javaClass.isInterface() || javaClass.isAbstract() || javaClass.isAnonymous())
+                continue;
             allClasses.add(javaClass);
             allClassesNames.add(javaClass.getQualifiedName());
         }
@@ -73,6 +74,8 @@ public class ParserSPOON {
             for (Object method : javaClass.getMethods()) {
                 CtMethod currentMethod = (CtMethod) method;
                 for (CtInvocation methodInvocation : currentMethod.getElements(new TypeFilter<>(CtInvocation.class))) {
+                    if (methodInvocation.getExecutable().getDeclaringType() == null || methodInvocation.getExecutable().getDeclaringType().getTypeDeclaration() == null)
+                        continue;
                     String qualifiedName = methodInvocation.getExecutable().getDeclaringType().getTypeDeclaration().getQualifiedName();
                     if (!javaClass.getQualifiedName().equals(qualifiedName) && allClassesNames.contains(qualifiedName)) {
                         allRelationsCounter += 1;
@@ -92,6 +95,8 @@ public class ParserSPOON {
         for (Object method : A.getMethods()) {
             CtMethod currentMethod = (CtMethod) method;
             for (CtInvocation methodInvocation : currentMethod.getElements(new TypeFilter<>(CtInvocation.class))) {
+                if (methodInvocation.getExecutable().getDeclaringType() == null || methodInvocation.getExecutable().getDeclaringType().getTypeDeclaration() == null)
+                    continue;
                 String qualifiedName = methodInvocation.getExecutable().getDeclaringType().getTypeDeclaration().getQualifiedName();
                 if (qualifiedName.equals(B.getQualifiedName())) {
                     numberOfRelations += 1;
@@ -102,6 +107,8 @@ public class ParserSPOON {
         for (Object method : B.getMethods()) {
             CtMethod currentMethod = (CtMethod) method;
             for (CtInvocation methodInvocation : currentMethod.getElements(new TypeFilter<>(CtInvocation.class))) {
+                if (methodInvocation.getExecutable().getDeclaringType() == null || methodInvocation.getExecutable().getDeclaringType().getTypeDeclaration() == null)
+                    continue;
                 String qualifiedName = methodInvocation.getExecutable().getDeclaringType().getTypeDeclaration().getQualifiedName();
                 if (qualifiedName.equals(A.getQualifiedName())) {
                     numberOfRelations += 1;
